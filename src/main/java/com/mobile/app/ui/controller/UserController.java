@@ -3,6 +3,7 @@ package com.mobile.app.ui.controller;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -16,12 +17,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.mobile.app.Service.IUserService;
 import com.mobile.app.UI.modal.request.UserDetailsRequestModal;
 import com.mobile.app.UI.modal.response.UserRest;
 
 @RestController
 @RequestMapping("/users")
 public class UserController {
+
+	@Autowired
+	IUserService userCreateService;
+
 	Map<String, UserRest> users;
 
 	@GetMapping
@@ -32,33 +38,30 @@ public class UserController {
 
 	@GetMapping(path = "/{userId}")
 	public ResponseEntity<UserRest> getUser(@PathVariable String userId) {
-		if (users.containsKey(userId)) {
-			return new ResponseEntity<UserRest>(users.get(userId), HttpStatus.OK);
-		}
-		return new ResponseEntity<UserRest>(HttpStatus.NO_CONTENT);
+
+		return (userCreateService.getUser(userId) == null ? (new ResponseEntity<UserRest>(HttpStatus.NO_CONTENT))
+				: (new ResponseEntity<UserRest>(userCreateService.getUser(userId), HttpStatus.OK)));
 	}
 
 	@PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<UserRest> createUser(@RequestBody UserDetailsRequestModal userRequest) {
-		UserRest user = new UserRest();
-		user.setFirstName(userRequest.getFirstName());
-		user.setEmail(userRequest.getEmail());
-		user.setUserId(userRequest.getUserId());
-
-		if (users == null)
-			users = new HashMap<>();
-		users.put(user.getUserId(), user);
-		return new ResponseEntity<UserRest>(user, HttpStatus.OK);
+		return userCreateService.createUser(userRequest) == null ? new ResponseEntity<UserRest>(HttpStatus.NO_CONTENT)
+				: new ResponseEntity<UserRest>(userCreateService.createUser(userRequest), HttpStatus.OK);
 	}
 
-	@PutMapping
-	public String updateUser() {
-		return "User Updated";
+	@PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE, path = "/{userId}")
+	public ResponseEntity<UserRest> updateUser(@RequestBody UserDetailsRequestModal userRequest,
+			@PathVariable String userId) {
+		return userCreateService.updateUser(userRequest, userId) == null
+				? new ResponseEntity<UserRest>(HttpStatus.NO_CONTENT)
+				: new ResponseEntity<UserRest>(userCreateService.updateUser(userRequest, userId), HttpStatus.OK);
+
 	}
 
-	@DeleteMapping
-	public String DeleteUser() {
-		return "User Deleted";
+	@DeleteMapping(path = "/{userId}")
+	public String DeleteUser(@PathVariable String userId) {
+		return userCreateService.DeleteUser(userId) == null ? "User doesn't exist"
+				: userCreateService.DeleteUser(userId);
 	}
 
 }
