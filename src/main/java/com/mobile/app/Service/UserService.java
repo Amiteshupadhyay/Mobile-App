@@ -11,7 +11,7 @@ import com.mobile.app.UI.modal.request.UserDetailsRequestModal;
 import com.mobile.app.UI.modal.response.UserRest;
 
 @Service
-public class UserServiceCreate implements IUserService {
+public class UserService implements IUserService {
 	Map<String, UserRest> users;
 
 	@Override
