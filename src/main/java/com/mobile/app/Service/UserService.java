@@ -36,8 +36,10 @@ public class UserService implements IUserService {
 			userupdate.setUserId(userRequest.getUserId());
 			userupdate.setLastName(userRequest.getLastName());			
 			return userupdate;
+		}else{
+			return null;
 		}
-		return null;
+		
 	}
 
 	@Override
